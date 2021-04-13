@@ -1,9 +1,8 @@
 package com.template;
 
 import com.google.common.collect.ImmutableList;
-import com.template.flows.Initiator;
-import com.template.flows.Responder;
-import com.template.states.TemplateState;
+import com.template.flows.IssueFungEvoTokenType;
+import com.template.states.FungEvoTokenType;
 import net.corda.core.node.services.Vault;
 import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.transactions.SignedTransaction;
@@ -37,15 +36,15 @@ public class FlowTests {
         network.stopNodes();
     }
 
-    @Test
-    public void dummyTest() {
-        Initiator flow = new Initiator(b.getInfo().getLegalIdentities().get(0));
-        Future<SignedTransaction> future = a.startFlow(flow);
-        network.runNetwork();
-
-        //successful query means the state is stored at node b's vault. Flow went through.
-        QueryCriteria inputCriteria = new QueryCriteria.VaultQueryCriteria().withStatus(Vault.StateStatus.UNCONSUMED);
-        TemplateState state = b.getServices().getVaultService()
-                .queryBy(TemplateState.class,inputCriteria).getStates().get(0).getState().getData();
-    }
+//    @Test
+//    public void dummyTest() {
+//        IssueFungEvoTokenType flow = new IssueFungEvoTokenType(b.getInfo().getLegalIdentities().get(0));
+//        Future<SignedTransaction> future = a.startFlow(flow);
+//        network.runNetwork();
+//
+//        //successful query means the state is stored at node b's vault. Flow went through.
+//        QueryCriteria inputCriteria = new QueryCriteria.VaultQueryCriteria().withStatus(Vault.StateStatus.UNCONSUMED);
+//        FungEvoTokenType state = b.getServices().getVaultService()
+//                .queryBy(FungEvoTokenType.class,inputCriteria).getStates().get(0).getState().getData();
+//    }
 }
