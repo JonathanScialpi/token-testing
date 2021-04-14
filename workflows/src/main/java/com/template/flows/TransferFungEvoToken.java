@@ -1,17 +1,13 @@
 package com.template.flows;
 
 import co.paralleluniverse.fibers.Suspendable;
-import com.r3.corda.lib.tokens.contracts.states.EvolvableTokenType;
-import com.r3.corda.lib.tokens.contracts.types.TokenPointer;
 import com.r3.corda.lib.tokens.contracts.types.TokenType;
 import com.r3.corda.lib.tokens.workflows.flows.move.MoveTokensUtilities;
 import com.r3.corda.lib.tokens.workflows.flows.rpc.MoveFungibleTokens;
 import com.r3.corda.lib.tokens.workflows.flows.rpc.MoveFungibleTokensHandler;
-import com.r3.corda.lib.tokens.workflows.flows.rpc.MoveNonFungibleTokensHandler;
 import com.r3.corda.lib.tokens.workflows.internal.flows.distribution.UpdateDistributionListFlow;
 import com.r3.corda.lib.tokens.workflows.internal.flows.finality.ObserverAwareFinalityFlow;
 import com.r3.corda.lib.tokens.workflows.types.PartyAndAmount;
-import com.r3.corda.lib.tokens.workflows.utilities.NotaryUtilities;
 import com.template.states.FungEvoTokenType;
 import net.corda.core.contracts.Amount;
 import net.corda.core.contracts.StateAndRef;
@@ -21,7 +17,6 @@ import net.corda.core.transactions.SignedTransaction;
 import net.corda.core.transactions.TransactionBuilder;
 
 import java.util.Arrays;
-import java.util.List;
 
 @InitiatingFlow
 @StartableByRPC
@@ -52,7 +47,7 @@ public class TransferFungEvoToken extends FlowLogic<String> {
 
 
         Amount<TokenType> amount = new Amount<>(quantity, fungEvoTokenType.toPointer(FungEvoTokenType.class));
-        subFlow(new MoveFungibleTokens(amount, receiver));
+//        subFlow(new MoveFungibleTokens(amount, receiver));
 
         PartyAndAmount<TokenType> test = new PartyAndAmount(receiver, amount);
 
@@ -64,7 +59,7 @@ public class TransferFungEvoToken extends FlowLogic<String> {
 
         SignedTransaction ptx = getServiceHub().signInitialTransaction((txBuilder));
         SignedTransaction stx = subFlow(new CollectSignaturesFlow(ptx, Arrays.asList(receiverSession, observerSession)));
-        SignedTransaction ftx =  subFlow(new ObserverAwareFinalityFlow(stx,  Arrays.asList(receiverSession, observerSession)));
+        SignedTransaction ftx =  subFlow(new FinalityFlow(stx,  Arrays.asList(receiverSession, observerSession)));
 
         //Add the new token holder to the distribution list
         subFlow(new UpdateDistributionListFlow(ftx));

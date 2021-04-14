@@ -10,16 +10,25 @@ import com.template.states.FungEvoTokenType;
 import net.corda.core.contracts.StateAndRef;
 import net.corda.core.flows.FlowException;
 import net.corda.core.flows.FlowLogic;
+import net.corda.core.flows.InitiatingFlow;
+import net.corda.core.flows.StartableByRPC;
 import net.corda.core.identity.Party;
+import net.corda.core.node.services.Vault;
+import net.corda.core.node.services.vault.QueryCriteria;
 import net.corda.core.transactions.SignedTransaction;
 
-public class MintFungEvoToken extends FlowLogic<SignedTransaction> {
+import java.util.Arrays;
+import java.util.UUID;
 
-    private final String tokenTypeLinearId;
+@InitiatingFlow
+@StartableByRPC
+public class IssueFungEvoToken extends FlowLogic<SignedTransaction> {
+
+//    private final String tokenTypeLinearId;
     private final Party issuedTo;
 
-    public MintFungEvoToken(String tokenTypeLinearId, Party issuedTo){
-        this.tokenTypeLinearId = tokenTypeLinearId;
+    public IssueFungEvoToken(Party issuedTo){
+//        this.tokenTypeLinearId = tokenTypeLinearId;
         this.issuedTo = issuedTo;
     }
 
@@ -27,17 +36,18 @@ public class MintFungEvoToken extends FlowLogic<SignedTransaction> {
     @Override
     public SignedTransaction call() throws FlowException {
         // get FungEvoToken state from vault
-        StateAndRef<FungEvoTokenType> fungEvoTokenTypeStateAndRef = getServiceHub().getVaultService()
-                .queryBy(FungEvoTokenType.class).getStates().stream()
-                .filter(i -> i.getState().getData().getLinearId().equals(this.tokenTypeLinearId)).findAny()
-                .orElseThrow(() -> new IllegalArgumentException("Sorry, couldn't find that token type" + this.tokenTypeLinearId));
+//        StateAndRef<FungEvoTokenType> fungEvoTokenTypeStateAndRef = getServiceHub().getVaultService()
+//                .queryBy(FungEvoTokenType.class).getStates().stream()
+//                .filter(i -> i.getState().getData().getLinearId().equals(this.tokenTypeLinearId)).findAny()
+//                .orElseThrow(() -> new IllegalArgumentException("Sorry, couldn't find that token type" + this.tokenTypeLinearId));
 
-        //get the TokenType object
-        FungEvoTokenType fungEvoTokenType = fungEvoTokenTypeStateAndRef.getState().getData();
+        FungEvoTokenType fungEvoTokenTypeStateAndRef = getServiceHub().getVaultService().queryBy(FungEvoTokenType.class)
+                .getStates().get(0).getState().getData();
+
 
         //use token builder
         FungibleToken fungEvoToken = new FungibleTokenBuilder()
-                .ofTokenType(fungEvoTokenType.toPointer(FungEvoTokenType.class))
+                .ofTokenType(fungEvoTokenTypeStateAndRef.toPointer(FungEvoTokenType.class))
                 .issuedBy(getOurIdentity())
                 .withAmount(100)
                 .heldBy(issuedTo)
